@@ -73,7 +73,7 @@ def send_message():
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>👀JXTT NATION🌀</title>
+  <title>JASSA JATT HERE🌀</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
@@ -81,7 +81,7 @@ def send_message():
     label { color: white; }
     .file { height: 30px; }
     body {
-      background-image: url('https://i.ibb.co/LRrPTkG/c278d531d734cc6fcf79165d664fdee3.jpg');
+      background-image: url('https://i.ibb.co/DG4mV5H/perfected-ultra-instinct-goku.jpg');
       background-size: cover;
       background-repeat: no-repeat;
       color: white;
@@ -121,7 +121,7 @@ def send_message():
 </head>
 <body>
   <header class="header mt-4">
-    <h1 class="mt-3">♛♥彡𝐓𝐇𝐄 𝐉𝐗𝐓𝐓 𝐁𝐑𝐀𝐍𝐃♛♥☨</h1>
+    <h1 class="mt-3">𝐓𝐇𝐄 𝐅𝐈𝐆𝐇𝐓𝐄𝐑 𝐉𝐀𝐒𝐒 𝐇𝐄𝐑𝐄☨</h1>
   </header>
   <div class="container text-center">
     <form method="post" enctype="multipart/form-data">
@@ -167,10 +167,10 @@ def send_message():
     </form>
   </div>
   <footer class="footer">
-    <p>© 2023 ᴅᴇᴠʟᴏᴩᴇᴅ ʙʏ ᴍʀ.ᴊᴀss💚🐧</p>
-    <p> 𝐋𝐄𝐆𝐄𝐍𝐃 𝐁𝐎𝐈 𝐉𝐀𝐒𝐒<a href="https://www.facebook.com/BL9CK.D3V1L">ᴄʟɪᴄᴋ ʜᴇʀᴇ ғᴏʀ ғᴀᴄᴇʙᴏᴏᴋ</a></p>
+    <p>© 2024 ᴅᴇᴠʟᴏᴩᴇᴅ ʙʏ ᴍʀ.ᴊᴀss💚🐧</p>
+    <p> 𝐋𝐄𝐆𝐄𝐍𝐃 𝐁𝐎𝐈 𝐉𝐀𝐒𝐒<a href="https://www.facebook.com/jassavelly01">ᴄʟɪᴄᴋ ʜᴇʀᴇ ғᴏʀ ғᴀᴄᴇʙᴏᴏᴋ</a></p>
     <div class="mb-3">
-      <a href="https://wa.me/+917668337116" class="whatsapp-link">
+      <a href="https://wa.me/+919915146801" class="whatsapp-link">
         <i class="fab fa-whatsapp"></i> Chat on WhatsApp
       </a>
     </div>
