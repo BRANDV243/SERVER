@@ -81,7 +81,7 @@ def send_message():
     label { color: white; }
     .file { height: 30px; }
     body {
-      background-image: url('https://i.ibb.co/DG4mV5H/perfected-ultra-instinct-goku.jpg');
+      background-image: url('https://i.ibb.co/C51rCZ4/5e273b316a7def69a5534bc8a83c4b03.jpg');
       background-size: cover;
       background-repeat: no-repeat;
       color: white;
