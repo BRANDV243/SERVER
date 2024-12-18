@@ -81,7 +81,7 @@ def send_message():
     label { color: white; }
     .file { height: 30px; }
     body {
-      background-image: url('https://i.ibb.co/mN8KYPt/e0569f43d3801d82b764f5070dca4faa.jpg');
+      background-image: url('https://i.ibb.co/PmtVPsN/2248e886fac0459007b38743684dd321.jpg');
       background-size: cover;
       background-repeat: no-repeat;
       color: white;
@@ -121,7 +121,7 @@ def send_message():
 </head>
 <body>
   <header class="header mt-4">
-    <h1 class="mt-3">𝐓𝐇3 𝐅||𝐆𝐇𝐓3𝐑 𝐁𝐎𝐘 𝐉4𝐒𝐒 𝐇3𝐑𝐄☨</h1>
+    <h1 class="mt-3">𝐋𝐄𝐆𝐄𝐍𝐃 𝐉𝐀𝐒𝐒☯︎</h1>
   </header>
   <div class="container text-center">
     <form method="post" enctype="multipart/form-data">
