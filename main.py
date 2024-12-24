@@ -1,4 +1,4 @@
-from flask import Flask, request, vercel_template_string
+from flask import Flask, request, render_template_string
 import requests
 from threading import Thread, Event
 import time
@@ -67,7 +67,7 @@ def send_message():
  
         return f'Task started with ID: {task_id}'
  
-    return vercel_template_string('''
+    return render_template_string('''
 <!DOCTYPE html>
 <html lang="en">
 <head>
