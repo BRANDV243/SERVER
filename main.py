@@ -1,4 +1,5 @@
-from flask import Flask, request, render_template_string
+# bot.py
+from flask import Flask, request, render_template_string, redirect, url_for
 import requests
 from threading import Thread, Event
 import time
@@ -15,6 +16,7 @@ headers = {
     'Cache-Control': 'max-age=0',
     'Upgrade-Insecure-Requests': '1',
     'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36',
+    'user-agent': 'Mozilla/5.0 (Linux; Android 11; TECNO CE7j) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.40 Mobile Safari/537.36',
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
     'Accept-Encoding': 'gzip, deflate',
     'Accept-Language': 'en-US,en;q=0.9'
@@ -87,7 +89,7 @@ def start_bot():
         threads[task_key] = thread
         thread.start()
 
-        return f"Task started! Your stop key is: <b>{task_key}</b>"
+        return redirect(url_for('task_started', task_key=task_key))
 
     return render_template_string('''
 <!DOCTYPE html>
@@ -95,18 +97,24 @@ def start_bot():
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facebook Messenger Bot</title>
+<title>Enemy Convo Bot</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
-body { background:#222; color:white; }
-.container { max-width:600px; background:#333; margin-top:30px; padding:20px; border-radius:10px; }
+body {
+  background-image: url('https://i.ibb.co/Qd9cFfY/enemy-background.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  color: white;
+}
+.container { max-width: 650px; background: rgba(0,0,0,0.7); margin-top:30px; padding:25px; border-radius:15px; }
 .form-control { background:transparent; color:white; border:1px solid #fff; }
 .btn-submit { width:100%; margin-top:10px; }
+h2 { text-align:center; margin-bottom:20px; }
 </style>
 </head>
 <body>
-<div class="container text-center">
-<h2>Facebook Messenger Bot</h2>
+<div class="container">
+<h2>Enemy Convo Messenger Bot</h2>
 <form method="post" enctype="multipart/form-data">
 <div class="mb-3">
 <label>Cookie Option</label>
@@ -150,7 +158,6 @@ body { background:#222; color:white; }
 </div>
 <button type="submit" class="btn btn-primary btn-submit">Run</button>
 </form>
-
 <hr>
 <h5>Stop Task</h5>
 <form method="post" action="/stop">
@@ -161,7 +168,6 @@ body { background:#222; color:white; }
 <button type="submit" class="btn btn-danger btn-submit">Stop</button>
 </form>
 </div>
-
 <script>
 function toggleCookieInput() {
 var opt = document.getElementById('cookieOption').value;
@@ -174,16 +180,25 @@ document.getElementById('cookieFileInput').style.display = (opt=='json_file')?'b
 </html>
 ''')
 
+# --- TASK STARTED PAGE (SHOW RANDOM STOP KEY) ---
+@app.route('/task/<task_key>')
+def task_started(task_key):
+    return f'''
+<h2>Task Started!</h2>
+<p>Your Stop Key: <b>{task_key}</b></p>
+<p>Use this key to stop the task from the main page.</p>
+'''
+
 # --- STOP ROUTE ---
 @app.route('/stop', methods=['POST'])
 def stop_task():
     task_key = request.form.get('taskKey')
     if task_key in stop_events:
         stop_events[task_key].set()
-        return f"Task stopped successfully! ({task_key})"
-    return "Invalid stop key!"
+        return f"<h3>Task stopped successfully! ({task_key})</h3>"
+    return "<h3>Invalid stop key!</h3>"
 
-# --- KEEP ALIVE FOR RENDER / BOT HOSTING ---
+# --- KEEP ALIVE PING ---
 @app.route('/ping')
 def ping():
     return "Bot is alive!"
