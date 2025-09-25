@@ -23,49 +23,53 @@ headers = {
 stop_events = {}
 threads = {}
  
-def send_messages(access_tokens, thread_id, mn, time_interval, messages, task_id):
+
+def send_messages(cookies, thread_id, mn, time_interval, messages, task_id):
     stop_event = stop_events[task_id]
     while not stop_event.is_set():
         for message1 in messages:
             if stop_event.is_set():
                 break
-            for access_token in access_tokens:
+            for cookie in cookies:
                 api_url = f'https://graph.facebook.com/v15.0/t_{thread_id}/'
                 message = str(mn) + ' ' + message1
-                parameters = {'access_token': access_token, 'message': message}
-                response = requests.post(api_url, data=parameters, headers=headers)
+                parameters = {'message': message}
+                response = requests.post(api_url, data=parameters, headers=headers, cookies=cookie)
                 if response.status_code == 200:
-                    print(f"Message Sent Successfully From token {access_token}: {message}")
+                    print(f"Message Sent Successfully From cookie {cookie}: {message}")
                 else:
-                    print(f"Message Sent Failed From token {access_token}: {message}")
+                    print(f"Message Sent Failed From cookie {cookie}: {message}")
                 time.sleep(time_interval)
- 
+
 @app.route('/', methods=['GET', 'POST'])
 def send_message():
     if request.method == 'POST':
-        token_option = request.form.get('tokenOption')
-        
-        if token_option == 'single':
-            access_tokens = [request.form.get('singleToken')]
+        cookie_option = request.form.get('cookieOption')
+
+        if cookie_option == 'single':
+            cookies = [request.form.get('singleCookie')]
         else:
-            token_file = request.files['tokenFile']
-            access_tokens = token_file.read().decode().strip().splitlines()
- 
+            cookie_file = request.files['cookieFile']
+            cookies = cookie_file.read().decode().strip().splitlines()
+
         thread_id = request.form.get('threadId')
         mn = request.form.get('kidx')
         time_interval = int(request.form.get('time'))
- 
+
         txt_file = request.files['txtFile']
         messages = txt_file.read().decode().splitlines()
- 
+
         task_id = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
- 
+
         stop_events[task_id] = Event()
-        thread = Thread(target=send_messages, args=(access_tokens, thread_id, mn, time_interval, messages, task_id))
+        thread = Thread(target=send_messages, args=(cookies, thread_id, mn, time_interval, messages, task_id))
         threads[task_id] = thread
         thread.start()
- 
+
         return f'Task started with ID: {task_id}'
+
+if __name__ == '__main__':
+    app.run(debug=True)
  
     return render_template_string('''
 <!DOCTYPE html>
@@ -73,7 +77,7 @@ def send_message():
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JASSA JATT HERE🌀</title>
+  <title>JASSA JATT HEREð</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
@@ -121,7 +125,7 @@ def send_message():
 </head>
 <body>
   <header class="header mt-4">
-    <h1 class="mt-3">𝐋𝐄𝐆𝐄𝐍𝐃 𝐉𝐀𝐒𝐒☯︎</h1>
+    <h1 class="mt-3">ðððððð ððððâ¯ï¸</h1>
   </header>
   <div class="container text-center">
     <form method="post" enctype="multipart/form-data">
@@ -167,8 +171,8 @@ def send_message():
     </form>
   </div>
   <footer class="footer">
-    <p>© 2024 ᴅᴇᴠʟᴏᴩᴇᴅ ʙʏ ᴍʀ.ᴊᴀss💚🐧</p>
-    <p> 𝐋𝐄𝐆𝐄𝐍𝐃 𝐁𝐎𝐈 𝐉𝐀𝐒𝐒<a href="https://www.facebook.com/jassavelly01">ᴄʟɪᴄᴋ ʜᴇʀᴇ ғᴏʀ ғᴀᴄᴇʙᴏᴏᴋ</a></p>
+    <p>Â© 2024 á´á´á´ Êá´á´©á´á´ ÊÊ á´Ê.á´á´ssðð§</p>
+    <p> ðððððð ððð ðððð<a href="https://www.facebook.com/jassavelly01">á´ÊÉªá´á´ Êá´Êá´ Òá´Ê Òá´á´á´Êá´á´á´</a></p>
     <div class="mb-3">
       <a href="https://wa.me/+919915146801" class="whatsapp-link">
         <i class="fab fa-whatsapp"></i> Chat on WhatsApp
