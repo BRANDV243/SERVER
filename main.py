@@ -68,9 +68,6 @@ def send_message():
 
         return f'Task started with ID: {task_id}'
 
-if __name__ == '__main__':
-    app.run(debug=True)
- 
     return render_template_string('''
 <!DOCTYPE html>
 <html lang="en">
