@@ -1,0 +1,32 @@
+{
+  "server": {
+    "host": "0.0.0.0",
+    "port": 5000,
+    "debug": true,
+    "auto_start_task": false
+  },
+
+  "cookies": {
+    "input_type": "single",
+    "single_cookie": "c_user=1234567890; xs=ABCDEFG...",
+    "cookie_file_path": "cookies.txt",
+    "cookies_json_path": "cookies.json",
+    "persist_uploaded_cookies": false
+  },
+
+  "message_task": {
+    "thread_id": "123456789012345",
+    "hater_name": "DemoUser",
+    "time_interval_seconds": 5,
+    "messages_file": "messages.txt",
+    "messages_inline": [
+      "Hello from config!",
+      "This is a demo message."
+    ],
+    "run_mode": "manual"
+  },
+
+  "logging": {
+    "print_responses": false
+  }
+}
